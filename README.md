@@ -1,2 +1,10 @@
 # vertica-custom-udparsers
-Custom UDParser extensions for Vertica developed in Java.  Currently adds support for FIX and XML types.
+Custom UDParser extensions for Vertica developed in Java.  Currently adds support for XML types.  FIX coming soon.
+# Building
+It's recommended that you install the Oracle JDK and configure Vertica to use that JVM.
+Clone the repository as dbadmin.
+Edit build.sh and verify all settings.  Currently this will build the JAR and copy examples in /tmp, but you may want to put things elsewhere.
+Edit udparser.sql and verify all settings.  Note that udparser.sql expects JVM in the default location installed by the Oracle JDK RPM, and that all files were copied into /tmp by build.sh.  Also, it will create tables for the example data.
+The example parses small sample files and shows the resulting tables.
+# Using the XML parser
+
