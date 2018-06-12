@@ -6,6 +6,7 @@ public class XmlParserFactory extends ParserFactory {
     @Override
     public void getParameterType(ServerInterface srvInterface, SizedColumnTypes parameterTypes) {
         parameterTypes.addVarchar(256, "document");
+        parameterTypes.addVarchar(4, "field_delimiter");
     }
 
     @Override

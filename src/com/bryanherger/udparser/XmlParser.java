@@ -30,7 +30,7 @@ import java.util.Set;
 
 public class XmlParser extends UDParser {
     private RejectedRecord rejectedRecord;
-    private String recordTag = "//item"; // default value
+    private String recordTag = "//item", fieldDelimiter = ","; // default values
     private DocumentBuilder builder;
     private ServerInterface serverInterface;
     private Map<String, Object> map = new HashMap<>();
@@ -38,7 +38,7 @@ public class XmlParser extends UDParser {
 
     public XmlParser(ServerInterface si) {
         serverInterface = si;
-        String docTag = null;
+        String docTag = null, delim = null;
         try {
             docTag = si.getParamReader().getString("document");
         } catch (Exception e) {
@@ -47,10 +47,23 @@ public class XmlParser extends UDParser {
             }
         }
         if (docTag != null) {
-            serverInterface.log("docTag = %s", docTag);
+            serverInterface.log("document = %s", docTag);
             recordTag = "//" + docTag;
         } else {
-            serverInterface.log("docTag is null, using 'item'");
+            serverInterface.log("document is null, using 'item'");
+        }
+        try {
+            delim = si.getParamReader().getString("field_delimiter");
+        } catch (Exception e) {
+            for (String s : si.getParamReader().getParamNames()) {
+                serverInterface.log("param = %s", s);
+            }
+        }
+        if (delim != null) {
+            serverInterface.log("field_delimiter = %s", delim);
+            fieldDelimiter = delim;
+        } else {
+            serverInterface.log("field_delimiter is null, using ','");
         }
         DocumentBuilderFactory builderFactory =
                 DocumentBuilderFactory.newInstance();
@@ -98,12 +111,16 @@ public class XmlParser extends UDParser {
                 }
             } else if (ii.getTextContent()!=null && !"".equals(ii.getTextContent().trim())) {
 				String field = (pathTo+ii.getNodeName()).replace("#","");
-				serverInterface.log("adding flatten: %s, %s", field, ii.getTextContent());
-				map.put(field, ii.getTextContent());
+				String avalue = ii.getTextContent();
+				if (fieldDelimiter.length() > 0 && map.get(field)!=null) {
+					avalue = map.get(field) + fieldDelimiter + avalue;
+				}
+				serverInterface.log("adding flatten: %s, %s", field, avalue);
+				map.put(field, avalue);
 				fields.add(field);
-                if (ii.hasAttributes()) {
-					serverInterface.log("2 adding attributes: %s", field);
-                }
+                //if (ii.hasAttributes()) {
+				//	serverInterface.log("2 adding attributes: %s", field);
+                //}
             }
         }
     }

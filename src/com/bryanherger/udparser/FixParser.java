@@ -18,6 +18,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,74 +28,64 @@ import java.util.Set;
 
 public class FixParser extends UDParser {
     private RejectedRecord rejectedRecord;
-    private String recordTag = "//item"; // default value
-    private DocumentBuilder builder;
     private ServerInterface serverInterface;
+    private byte lineTerm;
     private Map<String, Object> map = new HashMap<>();
+    private Set<String> fields = new HashSet<>();
 
     public FixParser(ServerInterface si) {
         serverInterface = si;
-        String docTag = null;
-        try {
-            docTag = si.getParamReader().getString("document");
-        } catch (Exception e) {
-            for (String s : si.getParamReader().getParamNames()) {
-                serverInterface.log("param = %s", s);
+        byte[] ltBytes = "\n".getBytes(Charset.forName("US-ASCII"));
+        if (ltBytes.length != 1) {
+            throw new IllegalArgumentException("Terminating character is multi-byte");
+        }
+        lineTerm = ltBytes[0];
+    }
+
+    private static int byteArrayIndexOf(byte[] buf, int offset, byte search) {
+        for (int i=offset; i<buf.length; i++) {
+            if (buf[i] == search) {
+                return i;
             }
         }
-        if (docTag != null) {
-            serverInterface.log("docTag = %s", docTag);
-            recordTag = "//" + docTag;
-        } else {
-            serverInterface.log("docTag is null, using 'item'");
-        }
-        DocumentBuilderFactory builderFactory =
-                DocumentBuilderFactory.newInstance();
-        builder = null;
-        try {
-            builder = builderFactory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
-        }
+
+        return -1;
     }
 
     private ByteBuffer consumeNextLine(DataBuffer input, InputState inputState) {
-        switch (inputState) {
-            case END_OF_FILE:
-            case END_OF_CHUNK:
-                ByteBuffer rv = ByteBuffer.wrap(input.buf,
-                        input.offset, input.buf.length - input.offset);
-                input.offset = input.buf.length;
-                return rv;
-            case OK:
-                return null;
-            default:
-                throw new IllegalArgumentException(
-                        "Unknown InputState: " + inputState.toString());
-        }
-    }
+        int lineEnd = byteArrayIndexOf(input.buf, input.offset, lineTerm);
 
-    /*private void flattenXML(String pathTo, NodeList theseNodes) {
-        for (int i = 0; i < theseNodes.getLength(); i++) {
-            Node ii = theseNodes.item(i);
-            if (ii.hasChildNodes()) {
-                flattenXML(pathTo+ii.getNodeName()+"_", ii.getChildNodes());
-            } else {
-                //map.put(pathTo+ii.getNodeName(), ii.getTextContent());
-                serverInterface.log("flatten: %s, %s", pathTo+ii.getNodeName(), ii.getTextContent());
-                if (ii.hasAttributes()) {
-                }
+        if (lineEnd == -1) {
+            switch (inputState) {
+                case END_OF_FILE:
+                case END_OF_CHUNK:
+                    ByteBuffer rv = ByteBuffer.wrap(input.buf,
+                            input.offset, input.buf.length - input.offset);
+                    input.offset = input.buf.length;
+                    return rv;
+                case OK:
+                    return null;
+                default:
+                    throw new IllegalArgumentException(
+                            "Unknown InputState: " + inputState.toString());
             }
         }
-    }*/
+
+        ByteBuffer rv = ByteBuffer.wrap(input.buf,
+                input.offset, lineEnd - input.offset);
+        input.offset = lineEnd+1; // skip the lineTerm byte
+        return rv;
+    }
+
+    private void parseFIX(String fixRecord) {
+		serverInterface.log("Got record: %s", fixRecord);
+    }
 
     @Override
     public StreamState process(ServerInterface srvInterface, DataBuffer input,
                                InputState inputState) throws UdfException, DestroyInvocation {
         clearReject();
         StreamWriter output = getStreamWriter();
-        Set<String> fields = new HashSet<>();
 
         while (input.offset < input.buf.length) {
             ByteBuffer lineBytes = consumeNextLine(input, inputState);
@@ -102,45 +93,12 @@ public class FixParser extends UDParser {
             if (lineBytes == null) {
                 return StreamState.INPUT_NEEDED;
             }
-
-            serverInterface.log("Read bytes: %s", new String(lineBytes.array()));
-
-            Document document;
-            try {
-                document = builder.parse(
-                        new ByteArrayInputStream(lineBytes.array())
-                );
-            } catch (SAXException | IOException e) {
-                e.printStackTrace();
-                throw new UdfException(42, e);
-            }
-            XPath xPath = XPathFactory.newInstance().newXPath();
-            NodeList nodeList;
-            try {
-                nodeList = (NodeList) xPath.compile(recordTag).evaluate(document, XPathConstants.NODESET);
-            } catch (XPathExpressionException e) {
-                throw new UdfException(42, e);
-            }
-            serverInterface.log("nodeList: %d", nodeList.getLength());
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                serverInterface.log("Parsing node %d", i);
-                NodeList docNodeList = nodeList.item(i).getChildNodes();
-                map.clear();
-                for (int j = 0; j < docNodeList.getLength(); j++) {
-                    Node docNode = docNodeList.item(j);
-                    try {
-                        serverInterface.log("Name: %s, Value: %s", docNode.getNodeName(), docNode.getTextContent());
-                        map.put(docNode.getNodeName(), docNode.getTextContent());
-                        fields.add(docNode.getNodeName());
-                    } catch (Exception e) {
-                        serverInterface.log("XML parse exception (will try to continue): %s" + e.getMessage());
-                    }
-                }
-                output.setRowFromMap(map);
-                output.next();
-            }
+			String fixRecord = new String(lineBytes.array());
+			parseFIX(fixRecord);
+			output.setRowFromMap(map);
+			output.next();
         }
-        String DDL = "CREATE TABLE forThisXmlDoc (";
+        String DDL = "CREATE TABLE forThisFixDoc (";
         boolean first = false;
         for (String field : fields) {
             if (first) {
