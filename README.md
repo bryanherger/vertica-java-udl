@@ -1,5 +1,5 @@
 # vertica-custom-udparsers
-Custom UDParser extensions for Vertica developed in Java.  Currently adds support for XML types.  FIX coming soon.
+Custom UDParser extensions for Vertica developed in Java.  Currently adds support for XML and FIX types.
 ## Building
 It's recommended that you install the Oracle JDK and configure Vertica to use that JVM.
 Clone the repository as dbadmin.
@@ -8,4 +8,10 @@ Edit udparser.sql and verify all settings.  Note that udparser.sql expects JVM i
 The example parses small sample files and shows the resulting tables.
 ## Using the XML parser
 The XML parser takes two optional arguments: document, which is the tag used to split records in the XML (default "item"); and field_delimiter, which is used to concatenate multiple values for the same field (default ",").  See udparser.sql for a usage example.  You'll note that the XML parser extracts text content and attribute values.  Column names in Vertica table must match the nomenclature used by the parser; if you're not sure what the parser sees, check the Java UDxLogs, the parser will print a sample CREATE TABLE DDL to the log. The current limitations of the XML parser are that it loads all fields as VARCHAR currently, and that it has to load the entire file into memory on one node to build a DOM and process; this will limit input size and possibly have performance issues for very large files even in they fit in memory.
+## Using the FIX parser
+The FIX parser currently takes no arguments and splits one or more FIX messages into fields and rows.  No field translation is done; field names will be FIXn where n is the message code and the field value is copied as VARCHAR.
+## Possible future enhancements
+Proper type coercion attempt.
+Using QuickFix/J to parse FIX.
+Implemented X to JSON type parsers to chain for flex table input.
 

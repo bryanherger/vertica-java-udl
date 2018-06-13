@@ -30,12 +30,15 @@ public class FixParser extends UDParser {
     private RejectedRecord rejectedRecord;
     private ServerInterface serverInterface;
     private byte lineTerm;
+    private static final String SOH = String.valueOf('\001');
     private Map<String, Object> map = new HashMap<>();
     private Set<String> fields = new HashSet<>();
 
     public FixParser(ServerInterface si) {
         serverInterface = si;
-        byte[] ltBytes = "\n".getBytes(Charset.forName("US-ASCII"));
+        si.log("Instantiated");
+        //byte[] ltBytes = "\n".getBytes(Charset.forName("US-ASCII"));
+        byte[] ltBytes = SOH.getBytes(Charset.forName("US-ASCII"));
         if (ltBytes.length != 1) {
             throw new IllegalArgumentException("Terminating character is multi-byte");
         }
@@ -52,7 +55,7 @@ public class FixParser extends UDParser {
         return -1;
     }
 
-    private ByteBuffer consumeNextLine(DataBuffer input, InputState inputState) {
+    /*private ByteBuffer consumeNextLine(DataBuffer input, InputState inputState) {
         int lineEnd = byteArrayIndexOf(input.buf, input.offset, lineTerm);
 
         if (lineEnd == -1) {
@@ -75,10 +78,37 @@ public class FixParser extends UDParser {
                 input.offset, lineEnd - input.offset);
         input.offset = lineEnd+1; // skip the lineTerm byte
         return rv;
-    }
+    }*/
 
-    private void parseFIX(String fixRecord) {
-		serverInterface.log("Got record: %s", fixRecord);
+    private String consumeNextToken(DataBuffer input, InputState inputState) {
+        int lineEnd = byteArrayIndexOf(input.buf, input.offset, lineTerm);
+		//serverInterface.log("offset: %d | lineEnd: %d", input.offset, lineEnd);
+
+        if (lineEnd == -1) {
+            switch (inputState) {
+                case END_OF_FILE:
+                case END_OF_CHUNK:
+                    ByteBuffer rv = ByteBuffer.wrap(input.buf,
+                            input.offset, input.buf.length - input.offset);
+                    input.offset = input.buf.length;
+                    return new String(rv.array());
+                case OK:
+                    return null;
+                default:
+                    throw new IllegalArgumentException(
+                            "Unknown InputState: " + inputState.toString());
+            }
+        }
+
+        ByteBuffer rv = ByteBuffer.wrap(input.buf,
+                input.offset, lineEnd - input.offset);
+		byte[] bb = new byte[lineEnd - input.offset];
+		rv.get(bb, 0, lineEnd - input.offset);
+		//serverInterface.log("wrap offset: %d | lineEnd - offset: %d | capacity: %d", input.offset, lineEnd - input.offset, rv.capacity());
+        input.offset = lineEnd+1; // skip the lineTerm byte
+		String fixToken = new String(rv.slice().array());
+		//serverInterface.log("rv = %s, bb = %s", fixToken, new String(bb));
+        return new String(bb);
     }
 
     @Override
@@ -86,17 +116,28 @@ public class FixParser extends UDParser {
                                InputState inputState) throws UdfException, DestroyInvocation {
         clearReject();
         StreamWriter output = getStreamWriter();
+		//map.clear();
+		//fields.clear();
 
         while (input.offset < input.buf.length) {
-            ByteBuffer lineBytes = consumeNextLine(input, inputState);
+            String lineBytes = consumeNextToken(input, inputState);
 
             if (lineBytes == null) {
                 return StreamState.INPUT_NEEDED;
             }
-			String fixRecord = new String(lineBytes.array());
-			parseFIX(fixRecord);
-			output.setRowFromMap(map);
-			output.next();
+
+			//String fixToken = new String(lineBytes.array());
+			serverInterface.log("Got token: %s", lineBytes);
+			if (lineBytes.startsWith("8=FIX") && map.size() > 0) {
+				output.setRowFromMap(map);
+				output.next();
+				map.clear();
+			}
+			lineBytes = "FIX"+lineBytes;
+			String[] tokens = lineBytes.split("=");
+			map.put(tokens[0], tokens[1]);
+			fields.add(tokens[0]);
+			//parseFIX(fixRecord);
         }
         String DDL = "CREATE TABLE forThisFixDoc (";
         boolean first = false;
