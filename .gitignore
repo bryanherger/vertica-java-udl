@@ -26,3 +26,4 @@ src/com/vertica/sdk/BuildInfo.java
 # IntelliJ
 *.iml
 .idea/
+*.bak
