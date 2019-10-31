@@ -14,7 +14,7 @@ The XML parser takes two optional arguments: document, which is the tag used to 
 ## Using the FIX parser
 The FIX parser currently takes no arguments and splits one or more FIX messages into fields and rows.  No field translation is done; field names will be FIXn where n is the message code and the field value is copied as VARCHAR.
 ## Sourcing data via JDBC
-The JDBCLoader lets you create any JDBC query as an external table - essentially, CREATE EXTERNAL TABLE jdbcTbl (cols...) AS COPY FROM JDBCLoader(query='') with the following caveat: the JDBC libraries must be packed into the JAR created by the build script, and column count and names from the JDBC query must line up with the external table definition.
+The JDBCLoader lets you create any JDBC query as an external table - essentially, CREATE EXTERNAL TABLE jdbcTbl (cols...) AS COPY FROM JDBCLoader(query='') with the following caveat: the JDBC libraries must be packed into the JAR created by the build script, copy JDBC JAR files into lib folder (except vertica-jdbc.jar, which is already included!)  Also, column count and names from the JDBC query must line up with the external table definition.
 ## Possible future enhancements
 Proper type coercion attempt.
 Using QuickFix/J to parse FIX.
