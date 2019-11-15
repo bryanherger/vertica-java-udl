@@ -1,10 +1,10 @@
 ALTER DATABASE DEFAULT SET JavaBinaryForUDx = '/usr/java/latest/bin/java';
 
-CREATE OR REPLACE LIBRARY xmludparser AS '/tmp/xmludparser.jar' language 'java';
+CREATE OR REPLACE LIBRARY verticajavaudl AS '/tmp/verticajavaudl.jar' language 'java';
 
-CREATE OR REPLACE PARSER XmlParser AS LANGUAGE 'java' NAME 'com.bryanherger.udparser.XmlParserFactory' LIBRARY xmludparser;
-CREATE OR REPLACE PARSER FixParser AS LANGUAGE 'java' NAME 'com.bryanherger.udparser.FixParserFactory' LIBRARY xmludparser;
-CREATE OR REPLACE FILTER XmlFilter AS LANGUAGE 'java' NAME 'com.bryanherger.udparser.XmlFilterFactory' LIBRARY xmludparser;
+CREATE OR REPLACE PARSER XmlParser AS LANGUAGE 'java' NAME 'com.bryanherger.udparser.XmlParserFactory' LIBRARY verticajavaudl;
+CREATE OR REPLACE PARSER FixParser AS LANGUAGE 'java' NAME 'com.bryanherger.udparser.FixParserFactory' LIBRARY verticajavaudl;
+CREATE OR REPLACE FILTER XmlFilter AS LANGUAGE 'java' NAME 'com.bryanherger.udparser.XmlFilterFactory' LIBRARY verticajavaudl;
 
 DROP TABLE IF EXISTS public.examplexml;
 CREATE TABLE public.examplexml (author_text VARCHAR, title_text VARCHAR, title_attr_lang VARCHAR, year_text VARCHAR, price_text VARCHAR);

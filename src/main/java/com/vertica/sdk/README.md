@@ -1,0 +1,1 @@
+Copy BuildInfo.java from /opt/vertica/sdk on the target cluster into this folder.  It must be the same version as the cluster and the VerticaSDK.jar!

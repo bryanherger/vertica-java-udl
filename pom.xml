@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.microfocus.vertica</groupId>
+    <artifactId>vertica-java-udl</artifactId>
+    <version>0.1</version>
+    <description>Vertica Java UDL/filter/parser samples</description>
+    <packaging>jar</packaging>
+    <properties>
+        <activemq.version>5.15.10</activemq.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.mchange</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>0.9.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-all</artifactId>
+            <version>${activemq.version}</version>
+        </dependency>
+        <!-- https://www.tutorialspoint.com/maven/maven_external_dependencies.htm -->
+        <dependency>
+            <groupId>com.vertica</groupId>
+            <artifactId>VerticaSDK</artifactId>
+            <scope>system</scope>
+            <version>1.0</version>
+            <!-- edit this to compile on Windows e.g. D:/Temp/github/vertica-java-udl/SDK/VerticaSDK.jar -->
+            <!-- default <systemPath>/opt/vertica/bin/VerticaSDK.jar</systemPath> -->
+            <systemPath>D:/Temp/github/vertica-java-udl/SDK/VerticaSDK.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <mainClass>com.microfocus.vertica.mq.ActiveMQConsumer</mainClass>
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
+
+</project>
