@@ -1,6 +1,6 @@
 ALTER DATABASE docker SET JavaBinaryForUDx = '/usr/java/latest/bin/java';
 
-CREATE OR REPLACE LIBRARY verticajavaudl AS '/tmp/verticajavaudl.jar' language 'java';
+CREATE OR REPLACE LIBRARY verticajavaudl AS '/tmp/vertica-java-udl-0.1-jar-with-dependencies.jar' language 'java';
 
 CREATE OR REPLACE PARSER XmlParser AS LANGUAGE 'java' NAME 'XmlParserFactory' LIBRARY verticajavaudl;
 

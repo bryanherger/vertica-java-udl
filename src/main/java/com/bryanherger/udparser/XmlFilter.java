@@ -1,5 +1,6 @@
 package com.bryanherger.udparser;
 
+import com.google.gson.Gson;
 import com.vertica.sdk.*;
 import com.vertica.sdk.State.InputState;
 import com.vertica.sdk.State.StreamState;
@@ -140,6 +141,7 @@ public class XmlFilter extends UDFilter {
             serverInterface.log("Read bytes: %s", new String(lineBytes.array()));
 
             Document document;
+            Gson gson=new Gson();
             try {
                 document = builder.parse(
                         new ByteArrayInputStream(lineBytes.array())
@@ -176,8 +178,10 @@ public class XmlFilter extends UDFilter {
                 if (i > 0) {
                     outputString = outputString + ",";
                 }
-                outputString = outputString + "{";
                 boolean notFirst = false;
+                outputString = outputString + gson.toJson(map);
+                /*
+                outputString = outputString + "{";
                 for (String key : map.keySet()) {
                     if (notFirst) {
                         outputString = outputString + ",";
@@ -187,6 +191,7 @@ public class XmlFilter extends UDFilter {
                     outputString = outputString +"\"" + key + "\":\"" + map.get(key) +"\"";
                 }
                 outputString = outputString + "}";
+                 */
             }
             outputString = outputString + "]";
         }

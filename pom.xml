@@ -11,6 +11,7 @@
     <packaging>jar</packaging>
     <properties>
         <activemq.version>5.15.10</activemq.version>
+        <vertica.version>9.3.0-0</vertica.version>
     </properties>
     <dependencies>
         <dependency>
@@ -23,15 +24,31 @@
             <artifactId>activemq-all</artifactId>
             <version>${activemq.version}</version>
         </dependency>
+        <!--  Gson: Java to Json conversion -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.6</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- https://www.tutorialspoint.com/maven/maven_external_dependencies.htm -->
         <dependency>
             <groupId>com.vertica</groupId>
             <artifactId>VerticaSDK</artifactId>
             <scope>system</scope>
-            <version>1.0</version>
+            <version>${vertica.version}</version>
             <!-- edit this to compile on Windows e.g. D:/Temp/github/vertica-java-udl/SDK/VerticaSDK.jar -->
             <!-- default <systemPath>/opt/vertica/bin/VerticaSDK.jar</systemPath> -->
             <systemPath>D:/Temp/github/vertica-java-udl/SDK/VerticaSDK.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.vertica</groupId>
+            <artifactId>vertica-jdbc</artifactId>
+            <scope>system</scope>
+            <version>${vertica.version}</version>
+            <!-- edit this to compile on Windows e.g. D:/Temp/github/vertica-java-udl/SDK/VerticaSDK.jar -->
+            <!-- default <systemPath>/opt/vertica/java/vertica-jdbc.jar</systemPath> -->
+            <systemPath>D:/Temp/github/vertica-java-udl/SDK/vertica-jdbc.jar</systemPath>
         </dependency>
     </dependencies>
 

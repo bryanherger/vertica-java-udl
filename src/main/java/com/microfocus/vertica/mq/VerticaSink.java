@@ -12,7 +12,7 @@ public class VerticaSink {
 
     private static final Logger LOG = LoggerFactory.getLogger(VerticaSink.class);
 
-    private String INSERT_MESSAGE = "INSERT INTO shchema.table VALUES (?, ?, ?, ?) ";
+    private String INSERT_MESSAGE = "INSERT INTO schema.table VALUES (?, ?, ?, ?) ";
     private ComboPooledDataSource cpds;
     private PreparedStatement statement;
     public long lastBatch = 0L;
