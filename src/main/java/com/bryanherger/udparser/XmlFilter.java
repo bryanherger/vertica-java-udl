@@ -49,7 +49,7 @@ public class XmlFilter extends UDFilter {
             }
         }
         if (docTag != null) {
-            serverInterface.log("document = %s", docTag);
+            serverInterface.log("document = %s", docTag.replace("%","%%"));
             recordTag = "//" + docTag;
         } else {
             serverInterface.log("document is null, using 'item'");
@@ -58,11 +58,11 @@ public class XmlFilter extends UDFilter {
             delim = si.getParamReader().getString("field_delimiter");
         } catch (Exception e) {
             for (String s : si.getParamReader().getParamNames()) {
-                serverInterface.log("param = %s", s);
+                serverInterface.log("param = %s", s.replace("%","%%"));
             }
         }
         if (delim != null) {
-            serverInterface.log("field_delimiter = %s", delim);
+            serverInterface.log("field_delimiter = %s", delim.replace("%","%%"));
             fieldDelimiter = delim;
         } else {
             serverInterface.log("field_delimiter is null, using ','");
@@ -100,13 +100,13 @@ public class XmlFilter extends UDFilter {
             if (ii.hasChildNodes()) {
                 flattenXML(pathTo+ii.getNodeName()+"_", ii.getChildNodes());
                 if (ii.hasAttributes()) {
-                    serverInterface.log("1 adding attributes: %s", pathTo+ii.getNodeName());
+                    serverInterface.log("1 adding attributes: %s", pathTo+ii.getNodeName().replace("%","%%"));
                     NamedNodeMap nodeMap = ii.getAttributes();
                     for (int jj = 0; jj < nodeMap.getLength(); jj++) {
                         Node an = nodeMap.item(jj);
                         String aname = pathTo+ii.getNodeName()+"_attr_"+an.getNodeName();
                         String avalue = an.getNodeValue();
-                        serverInterface.log("attr %d: %s, %s",jj,aname,avalue);
+                        serverInterface.log("attr %d: %s, %s",jj,aname.replace("%","%%"),avalue.replace("%","%%"));
                         map.put(aname, avalue);
                         fields.add(aname);
                     }
@@ -117,7 +117,7 @@ public class XmlFilter extends UDFilter {
                 if (fieldDelimiter.length() > 0 && map.get(field)!=null) {
                     avalue = map.get(field) + fieldDelimiter + avalue;
                 }
-                serverInterface.log("adding flatten: %s, %s", field, avalue);
+                serverInterface.log("adding flatten: %s, %s", field.replace("%","%%"), avalue.replace("%","%%"));
                 map.put(field, avalue);
                 fields.add(field);
                 //if (ii.hasAttributes()) {
@@ -138,7 +138,7 @@ public class XmlFilter extends UDFilter {
                 return StreamState.INPUT_NEEDED;
             }
 
-            serverInterface.log("Read bytes: %s", new String(lineBytes.array()));
+            //serverInterface.log("Read bytes: " + new String(lineBytes.array()));
 
             Document document;
             Gson gson=new Gson();
@@ -201,7 +201,8 @@ public class XmlFilter extends UDFilter {
         } catch (UnsupportedEncodingException uex) {
             serverInterface.log("XML2JSON: uex: %s", uex.getMessage());
         }
-        serverInterface.log("XML2JSON: %s", outputString);
+        //serverInterface.log("XML2JSON: %s", outputString);
+        serverInterface.log("XML2JSON offset: %d", output.offset);
 
         return StreamState.DONE;
     }
