@@ -43,6 +43,10 @@ public class Jdbc2Vertica {
         return inType;
     }
 
+    public static void fetchPartitions(String ps) {
+
+    }
+
     public static boolean isNotBlank(String str) {
         if (str == null) { return false; }
         if (str.trim().length() == 0) { return false; }
@@ -68,12 +72,13 @@ public class Jdbc2Vertica {
             params.load(new FileReader(args.propertiesFile));
         }
 
+        boolean partitions = false;
         if (isNotBlank(args.srcUri)) { params.setProperty(sourceUriKey, args.srcUri); }
         if (isNotBlank(args.srcTbl)) { params.setProperty(sourceTableKey, args.srcTbl); }
         if (isNotBlank(args.dstUri)) { params.setProperty(verticaUriKey, args.dstUri); }
         if (isNotBlank(args.dstTbl)) { params.setProperty(verticaTableKey, args.dstTbl); }
         if (isNotBlank(args.flavor)) { params.setProperty(sqlDialectKey, args.flavor); }
-        if (isNotBlank(args.partition)) { params.setProperty(sqlPartitionKey, args.partition); }
+        if (isNotBlank(args.partition)) { params.setProperty(sqlPartitionKey, args.partition); partitions = true; }
         if (isNotBlank(args.where)) { params.setProperty(sqlWhereKey, args.where); }
 
         // connect to tables
@@ -101,6 +106,10 @@ public class Jdbc2Vertica {
 
         String ps = "INSERT INTO "+params.getProperty(verticaTableKey)+" VALUES ("+String.join(",",qs)+");";
         System.out.println(ps);
+        if (partitions) {
+            fetchPartitions(ps);
+            System.exit(0);
+        }
         PreparedStatement sVerticaPS = cVertica.prepareStatement(ps);
 
         /* TODO: handle partitions if configured, probably requires a loop/thread other than shown below */
@@ -142,8 +151,8 @@ class Args {
     public String dstTbl = "";
     @Parameter(names = {"--dialect"}, description = "SQL dialect (valid: 'PGSQL', 'TSQL')")
     public String flavor = "PGSQL";
-    @Parameter(names = {"--partition"}, description = "SQL dialect (valid: 'PGSQL', 'TSQL')")
+    @Parameter(names = {"--partition"}, description = "SQL field to partition large data sets")
     public String partition = null;
-    @Parameter(names = {"--where"}, description = "SQL dialect (valid: 'PGSQL', 'TSQL')")
+    @Parameter(names = {"--where"}, description = "SQL where clause to select data to copy")
     public String where = null;
 }

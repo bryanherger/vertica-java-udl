@@ -18,6 +18,7 @@ The FIX parser currently takes no arguments and splits one or more FIX messages 
 ## Using the FIX parser for regular tables
 The FIX parser currently takes no arguments and splits one or more FIX messages into fields and rows.  No field translation is done; field names will be "FIXn" where n is the message code and the field value is copied as VARCHAR.
 ## Sourcing data via JDBC
+The JDBCSource an Factory let you COPY data from a JDBC source.  It's still in progress but will eventually allow you to specify WHERE clause and partitions to read all data, just read data matching a WHERE clause, and divide the work across partitions so several or all nodes will be able to handle the workload.
 The JDBCLoader lets you create any JDBC query as an external table - essentially, CREATE EXTERNAL TABLE jdbcTbl (cols...) AS COPY FROM JDBCLoader(query='') with the following caveat: the JDBC libraries must be packed into the JAR created by the build script, copy JDBC JAR files into lib folder (except vertica-jdbc.jar, which is already included!)  Also, column count and names from the JDBC query must line up with the external table definition.
 ## Sourcing data via ActiveMQ
 This is a UDSource implementation of the https://github.com/bryanherger/vertica-activemq project.  Unlike Kafka, this does not run on schedule and exits after reading current messages on the topic, so you'll need to run the COPY manually using a scheduling tool to load continuously. 

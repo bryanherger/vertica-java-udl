@@ -21,7 +21,7 @@ public class ActiveMQSourceFactory extends SourceFactory {
     public ArrayList<UDSource> prepareUDSources(ServerInterface srvInterface,
                                                     NodeSpecifyingPlanContext planCtxt) {
         ArrayList<UDSource> retVal = new ArrayList<UDSource>();
-        retVal.add(new JDBCSource());
+        retVal.add(new ActiveMQSource());
         return retVal;
     }
 }
