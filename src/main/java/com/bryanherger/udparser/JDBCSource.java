@@ -1,26 +1,16 @@
 package com.bryanherger.udparser;
 
-import com.vertica.sdk.*;
-import com.vertica.sdk.State.InputState;
+import com.vertica.sdk.DataBuffer;
+import com.vertica.sdk.ServerInterface;
 import com.vertica.sdk.State.StreamState;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import com.vertica.sdk.UDSource;
+import com.vertica.sdk.UdfException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 public class JDBCSource extends UDSource {
 
@@ -70,12 +60,12 @@ public class JDBCSource extends UDSource {
         //make sure we don't overwrite the already existing stuff
         long offset;
         try {
+            logMemoryUsage(srvInterface);
             while (rs.next()) {
-                logMemoryUsage(srvInterface);
                 List<String> thisRow = new ArrayList<>();
                 for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                     try {
-                        srvInterface.log("" + i + "|" + rsmd.getColumnName(i) + "|" + rs.getString(i));
+                        //srvInterface.log("" + i + "|" + rsmd.getColumnName(i) + "|" + rs.getString(i));
                         String fld = rs.getString(i);
                         if (fld != null) {
                             fld = fld.replace('\n',' ').replace("|","\\|");
@@ -89,7 +79,10 @@ public class JDBCSource extends UDSource {
                 ByteArrayInputStream bais = new ByteArrayInputStream((String.join("|", thisRow) + "\n").getBytes("UTF-8"));
                 offset = bais.read(output.buf, output.offset, output.buf.length - output.offset);
                 output.offset += offset;
-                srvInterface.log("current offset = " + output.offset);
+                //srvInterface.log("current offset = " + output.offset);
+                if (output.offset > 900000) {
+                    return StreamState.OUTPUT_NEEDED;
+                }
             }
             return StreamState.DONE;
             /*if (rs.next()) {

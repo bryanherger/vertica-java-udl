@@ -12,8 +12,10 @@ drop table jdbc_rss_feeds ;
 package com.bryanherger.udparser;
 
 import com.vertica.sdk.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class JDBCSourceFactory extends SourceFactory {
     @Override
@@ -39,7 +41,7 @@ public class JDBCSourceFactory extends SourceFactory {
     @Override
     public void getParameterType(ServerInterface srvInterface, SizedColumnTypes parameterTypes) {
         parameterTypes.addVarchar(256, "tbl");
-        parameterTypes.addVarchar(256, "conditions");
+        parameterTypes.addVarchar(2048, "conditions");
         parameterTypes.addVarchar(256, "partitions");
         parameterTypes.addVarchar(65000, "jdbcUri");
         parameterTypes.addVarchar(65000, "nodes");
@@ -65,9 +67,20 @@ public class JDBCSourceFactory extends SourceFactory {
         int nodes = planCtxt.getTargetNodes().size();
         int splits = nodes; // TODO: splits = partitions, not nodes
         srvInterface.log("Nodes:"+nodes+",Splits:"+splits);
-        String whereClause = "";
+        List<String> whereClauses = new ArrayList<>();
         for (int i = 0; i < splits; i++) {
-            sources.add(new JDBCSource(jdbcUri, table+"_"+i, "SELECT * FROM "+table+" WHERE id % "+splits+" = "+i));
+            String sql = "SELECT * FROM "+table;
+            if (partition.length() > 0) {
+                whereClauses.add(partition+" % "+splits+" = "+i);
+            }
+            if (where.length() > 0) {
+                whereClauses.add(where);
+            }
+            if (whereClauses.size() > 0) {
+                sql = sql + " WHERE " + String.join(" AND ", whereClauses);
+            }
+            srvInterface.log("SQL="+sql);
+            sources.add(new JDBCSource(jdbcUri, table+"_"+i, sql));
     }
         return sources;
 
@@ -132,5 +145,5 @@ public class JDBCSourceFactory extends SourceFactory {
     }
 
     private String jdbcUri = "jdbc:postgresql://192.168.1.206:5432/commafeed?user=sa&password=sa";
-    private String table, tbl, where = "", partition = "id";
+    private String table, tbl, where = "", partition = "";
 }
