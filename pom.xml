@@ -10,20 +10,20 @@
     <description>Vertica Java UDL/filter/parser samples</description>
     <packaging>jar</packaging>
     <properties>
-        <activemq.version>5.15.10</activemq.version>
-        <vertica.version>10.0.0-1</vertica.version>
+        <activemq.version>5.16.4</activemq.version>
+        <vertica.version>11.1.0-0</vertica.version>
     </properties>
     <dependencies>
         <!-- add driver to use for JDBC UDSource/UDFunction here -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.15.jre7</version>
+            <version>42.3.3</version>
         </dependency>
         <dependency>
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
-            <version>0.9.5.4</version>
+            <version>0.9.5.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
@@ -34,13 +34,13 @@
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
-            <version>1.78</version>
+            <version>1.82</version>
         </dependency>
         <!--  Gson: Java to Json conversion -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.6</version>
+            <version>2.9.0</version>
             <scope>compile</scope>
         </dependency>
         <!-- https://www.tutorialspoint.com/maven/maven_external_dependencies.htm -->
@@ -51,16 +51,12 @@
             <version>${vertica.version}</version>
             <!-- edit this to compile on Windows e.g. D:/Temp/github/vertica-java-udl/SDK/VerticaSDK.jar -->
             <!-- default <systemPath>/opt/vertica/bin/VerticaSDK.jar</systemPath> -->
-            <systemPath>D:/Temp/github/vertica-java-udl/SDK/VerticaSDK.jar</systemPath>
+            <systemPath>D:/github/vertica-java-udl/SDK/VerticaSDK.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.vertica</groupId>
+            <groupId>com.vertica.jdbc</groupId>
             <artifactId>vertica-jdbc</artifactId>
-            <scope>system</scope>
             <version>${vertica.version}</version>
-            <!-- edit this to compile on Windows e.g. D:/Temp/github/vertica-java-udl/SDK/VerticaSDK.jar -->
-            <!-- default <systemPath>/opt/vertica/java/vertica-jdbc.jar</systemPath> -->
-            <systemPath>D:/Temp/github/vertica-java-udl/SDK/vertica-jdbc.jar</systemPath>
         </dependency>
     </dependencies>
 

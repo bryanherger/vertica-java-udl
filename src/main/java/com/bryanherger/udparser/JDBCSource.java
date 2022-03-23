@@ -21,7 +21,7 @@ public class JDBCSource extends UDSource {
         this.query = query;
     }
 
-    public void logMemoryUsage(ServerInterface srvInterface) {
+    public static void logMemoryUsage(ServerInterface srvInterface) {
         long total = Runtime.getRuntime().totalMemory();
         long free = Runtime.getRuntime().freeMemory();
         srvInterface.log("Memory: Used %d, Free %d, Total %d", total - free, free, total);

@@ -83,19 +83,6 @@ public class JDBCSourceFactory extends SourceFactory {
             sources.add(new JDBCSource(jdbcUri, table+"_"+i, sql));
     }
         return sources;
-
-        /*String filename = srvInterface.getParamReader().getString("file");
-
-        if (srvInterface.getParamReader().containsParameter("file_split_regex")) {
-            ArrayList<UDSource> sources = new ArrayList<UDSource>();
-            String[] fileNames = filename.split(srvInterface.getParamReader().getString("file_split_regex"));
-            for (int i = 0; i < fileNames.length; i++) {
-                sources.add(new JdbcSource(fileNames[i]));
-            }
-            return sources;
-        } else {
-            return new ArrayList<UDSource>(Collections.singletonList(new JdbcSource(filename)));
-        }*/
     }
 
     private void findExecutionNodes(ParamReader args,

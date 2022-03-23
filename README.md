@@ -18,8 +18,11 @@ The FIX parser currently takes no arguments and splits one or more FIX messages 
 ## Using the FIX parser for regular tables
 The FIX parser currently takes no arguments and splits one or more FIX messages into fields and rows.  No field translation is done; field names will be "FIXn" where n is the message code and the field value is copied as VARCHAR.
 ## Sourcing data via JDBC
-The JDBCSource an Factory let you COPY data from a JDBC source.  It's still in progress but will eventually allow you to specify WHERE clause and partitions to read all data, just read data matching a WHERE clause, and divide the work across partitions so several or all nodes will be able to handle the workload.
+The JDBCSource and Factory let you COPY data from a JDBC source.  It's still in progress but will eventually allow you to specify WHERE clause and partitions to read all data, just read data matching a WHERE clause, and divide the work across partitions so several or all nodes will be able to handle the workload.
 The JDBCLoader lets you create any JDBC query as an external table - essentially, CREATE EXTERNAL TABLE jdbcTbl (cols...) AS COPY FROM JDBCLoader(query='') with the following caveat: the JDBC libraries must be packed into the JAR created by the build script, copy JDBC JAR files into lib folder (except vertica-jdbc.jar, which is already included!)  Also, column count and names from the JDBC query must line up with the external table definition.
+## Sourcing data via Spark Sql
+The SparkSql Source and Loader is modeled after the ODBC Loader and will eventually support similar features for predicate pushdown, column selection, and partitioning.
+The SparkSqlLoader lets you create any Spark Sql query as an external table - essentially, CREATE EXTERNAL TABLE sparkTbl (cols...) AS COPY FROM SparkSqlLoader(query='') with the following caveat: the Vertica cluster (or subcluster!) executing the Spark Sql source and load must be able to access Spark, ideally by colocating Vertica and Spark installs.  More details will follow as I test this.
 ## Sourcing data via ActiveMQ
 This is a UDSource implementation of the https://github.com/bryanherger/vertica-activemq project.  Unlike Kafka, this does not run on schedule and exits after reading current messages on the topic, so you'll need to run the COPY manually using a scheduling tool to load continuously. 
 ## Possible future enhancements
