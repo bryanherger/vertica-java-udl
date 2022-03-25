@@ -1,4 +1,4 @@
-package com.bryanherger.udparser;
+package com.bryanherger.udparser.spark;
 
 import com.vertica.sdk.DataBuffer;
 import com.vertica.sdk.ServerInterface;

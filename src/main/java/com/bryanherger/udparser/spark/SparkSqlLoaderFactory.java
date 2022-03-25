@@ -1,4 +1,4 @@
-package com.bryanherger.udparser;
+package com.bryanherger.udparser.spark;
 
 import com.vertica.sdk.*;
 
@@ -14,9 +14,6 @@ public class SparkSqlLoaderFactory extends ParserFactory {
     public void plan(ServerInterface srvInterface,
                      PerColumnParamReader perColumnParamReader,
                      PlanContext planCtxt) throws UdfException {
-        if (!srvInterface.getParamReader().containsParameter("connect")) {
-            throw new UdfException(0, "Error:  SparkSqlLoader requires a 'connect' string containing JDBC connection URL");
-        }
         if (!srvInterface.getParamReader().containsParameter("query")) {
             throw new UdfException(0, "Error:  SparkSqlLoader requires a 'query' string, the query to execute on the remote system");
         }
@@ -33,8 +30,8 @@ public class SparkSqlLoaderFactory extends ParserFactory {
     @Override
     public void getParameterType(ServerInterface srvInterface,
                                  SizedColumnTypes parameterTypes) {
-        parameterTypes.addVarchar(65000, "connect");
         parameterTypes.addVarchar(65000, "query");
+        parameterTypes.addVarchar(65000, "partition");
         parameterTypes.addVarchar(65000, "__query_col_name__");
         parameterTypes.addVarchar(65000, "__query_col_idx__");
         for ( int k = 0 ; k < MAX_PRENUM ; k++ ) {
@@ -43,5 +40,12 @@ public class SparkSqlLoaderFactory extends ParserFactory {
         parameterTypes.addInt("rowset");
         parameterTypes.addBool("src_rfilter");
         parameterTypes.addBool("src_cfilter");
+        // Spark
+        //.master("local[1]")
+        //.config("spark.sql.warehouse.dir","hdfs:///user/spark/warehouse")
+        //.config("hive.metastore.uris","thrift://ip-172-31-26-110.ec2.internal:9083")
+        parameterTypes.addVarchar(65000, "spark_master");
+        parameterTypes.addVarchar(65000, "spark_sql_warehouse_dir");
+        parameterTypes.addVarchar(65000, "spark_hive_metastore_uris");
     }
 }

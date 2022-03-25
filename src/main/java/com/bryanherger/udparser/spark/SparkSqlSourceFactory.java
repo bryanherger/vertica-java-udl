@@ -9,7 +9,7 @@ DROP LIBRARY javaUdlLib CASCADE;
 drop table jdbc_rss_feeds ;
  */
 
-package com.bryanherger.udparser;
+package com.bryanherger.udparser.spark;
 
 import com.vertica.sdk.*;
 

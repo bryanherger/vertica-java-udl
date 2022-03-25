@@ -43,6 +43,22 @@
             <version>2.9.0</version>
             <scope>compile</scope>
         </dependency>
+        <!--  spark-sql (using EMR 6.5 versions here, YMMV) -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.12</artifactId>
+            <version>3.1.2</version>
+        </dependency>
+        <dependency> <!-- Spark dependency -->
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-hive_2.12</artifactId>
+            <version>3.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs-client</artifactId>
+            <version>3.1.2</version>
+        </dependency>
         <!-- https://www.tutorialspoint.com/maven/maven_external_dependencies.htm -->
         <dependency>
             <groupId>com.vertica</groupId>
