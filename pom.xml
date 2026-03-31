@@ -10,7 +10,7 @@
     <description>Vertica Java UDL/filter/parser samples</description>
     <packaging>jar</packaging>
     <properties>
-        <activemq.version>5.16.4</activemq.version>
+        <activemq.version>5.19.2</activemq.version>
         <vertica.version>11.1.0-0</vertica.version>
     </properties>
     <dependencies>
